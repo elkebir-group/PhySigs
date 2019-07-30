@@ -167,3 +167,37 @@ for (patient in tree_mat$SampleID) {
   }
 }
 dev.off()
+
+sink("tracerx.tsv")
+cat("patient", "\t", "n", "\t", "tree", "\t", "k", "\t", "min_mut", "\t", "max_mut", "\t", "RSS", "\t", "BIC", "\n", sep="")
+for (patient in tree_mat$SampleID) {
+  trees <- getTrees(patient, tree_mat)
+  i <- 1
+  for (t in trees) {
+    feat_mat <- getPatientFeatures(sigs.input, patient, t)
+    nrEdges  <- length(nodes(t)) - 1
+    for (k in 0:nrEdges) {
+      exp_mat <- exp_list[[patient]][[i]][[as.character(k)]]
+      mut_list <- list()
+      for (col in names(exp_mat)) {
+        s <- unlist(strsplit(col, ";"))
+        count <- 0
+        for (node in s) {
+          count <- count + sum(feat_mat[node,])
+        }
+        mut_list[[col]] <- count
+      }
+      
+      cat(patient, "\t", 
+          nrEdges + 1, "\t",
+          i, "\t", 
+          k, "\t",
+          min(as.numeric(mut_list)), "\t",
+          max(as.numeric(mut_list)), "\t",
+          error_list[[patient]][[i]][[as.character(k)]], "\t",
+          BIC_list[[patient]][[i]][[as.character(k)]], "\n", sep="")
+    }
+    i <- i + 1
+  }
+}
+sink()
