@@ -168,6 +168,61 @@ for (patient in tree_mat$SampleID) {
 }
 dev.off()
 
+# tracerx Best BIC
+sink("tracerx_opt.tsv")
+cat("patient", "\t", "n", "\t", "tree", "\t", "subtree", "\t", "mutation_count", "\t", "RSS", sep="")
+for (sig in sigs_all) {
+  cat("\t", sig, sep="")
+}
+cat("\n", sep="")
+for (patient in tree_mat$SampleID) {
+  trees <- getTrees(patient, tree_mat)
+  i <- 1
+  
+  for (t in trees) {
+    feat_mat <- getPatientFeatures(sigs.input, patient, t)
+    nrEdges  <- length(nodes(t)) - 1
+    
+    min_bic <- Inf
+    k_star <- -1
+    for (k in 0:nrEdges) {
+      bic <- BIC_list[[patient]][[i]][as.character(k)][[1]]
+      if (bic < min_bic) {
+        min_bic <- bic
+        k_star <- k
+      }
+    }
+    
+    exp_mat <- exp_list[[patient]][[i]][[as.character(k_star)]]
+    
+    mut_list <- list()
+    for (col in names(exp_mat)) {
+      s <- unlist(strsplit(col, ";"))
+      count <- 0
+      for (node in s) {
+        count <- count + sum(feat_mat[node,])
+      }
+      mut_list[[col]] <- count
+      
+      cat(patient, "\t", 
+          nrEdges + 1, "\t",
+          i, "\t", 
+          col, "\t",
+          mut_list[[col]], "\t",
+          getError(feat_mat[s,], exp_mat[col], sigs_all), sep="")
+      
+      for (sig in sigs_all) {
+        cat("\t", exp_mat[sig,col])
+      }
+      cat("\n")
+    }
+
+    i <- i + 1
+  }
+}
+sink()
+
+# tracerx summary
 sink("tracerx.tsv")
 cat("patient", "\t", "n", "\t", "tree", "\t", "k", "\t", "min_mut", "\t", "max_mut", "\t", "RSS", "\t", "BIC", "\n", sep="")
 for (patient in tree_mat$SampleID) {
