@@ -41,15 +41,19 @@ treeExposures <- function(tree, feat_mat, k, sigs_filter) {
         }  
       }
       row.names(feat_mat_CCC) <- paste(CCC,collapse=";")
+      feat_mat_CCC <- as.data.frame(feat_mat_CCC)
       # print(dim(feat_mat_CCC))
       
       # Get exposure for sample
-      sample_exp_CCC = whichSignatures(tumor.ref = feat_mat_CCC, 
-                                       signatures.ref = signatures.cosmic, 
-                                       associated = sigs_filter,
-                                       contexts.needed = TRUE,
-                                       signature.cutoff = 0.0001,
-                                       tri.counts.method = 'default')
+      feat_mat_CCC_norm <- getTriContextFraction(mut.counts.ref = tumor, 
+                                                 trimer.counts.method = tri.counts.method)
+      
+      sample_exp_CCC <- whichSignatures(tumor.ref = feat_mat_CCC, 
+                                        signatures.ref = signatures.cosmic, 
+                                        associated = sigs_filter,
+                                        contexts.needed = TRUE,
+                                        signature.cutoff = 0.0001,
+                                        tri.counts.method = 'default')
       
       # Add any unknown signatures
       sample_exp_CCC$weights$Signature.unknown <- sample_exp_CCC[["unknown"]]
@@ -72,7 +76,7 @@ treeExposures <- function(tree, feat_mat, k, sigs_filter) {
 
 getError <- function(feat_mat, exp_mat, sigs_filter) {
   expanded_exp_mat <- expand(exp_mat)
-  expanded_exp_mat <- expanded_exp_mat[, row.names(feat_mat)]
+  expanded_exp_mat <- expanded_exp_mat[row.names(feat_mat)]
   for (node in row.names(feat_mat)) {
     expanded_exp_mat[node] <- expanded_exp_mat[node] * sum(feat_mat[node,])
   }
@@ -94,6 +98,7 @@ getBIC <- function(feat_mat, exp_mat, sigs_filter) {
 
 expand <- function(exp_mat) {
   res_exp_mat <- data.frame(matrix(0L, nrow = length(row.names(exp_mat)), ncol = 0))
+  row.names(res_exp_mat) <- row.names(exp_mat)
 
   for (col in names(exp_mat)) {
     s <- unlist(strsplit(col, ";"))
