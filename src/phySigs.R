@@ -5,7 +5,7 @@ library(RColorBrewer)
 
 #sigs.input['CRUK0001:4',]+sigs.input['CRUK0001:5',]
 
-treeExposures <- function(tree, feat_mat, k, sigs_filter) {
+treeExposures <- function(tree, feat_mat, k, sigs_filter, norm_method) {
   V <- nodes(tree)
   E <- edgeMatrix(tree)
   E_list <- list()
@@ -45,15 +45,12 @@ treeExposures <- function(tree, feat_mat, k, sigs_filter) {
       # print(dim(feat_mat_CCC))
       
       # Get exposure for sample
-      feat_mat_CCC_norm <- getTriContextFraction(mut.counts.ref = tumor, 
-                                                 trimer.counts.method = tri.counts.method)
-      
       sample_exp_CCC <- whichSignatures(tumor.ref = feat_mat_CCC, 
                                         signatures.ref = signatures.cosmic, 
                                         associated = sigs_filter,
                                         contexts.needed = TRUE,
                                         signature.cutoff = 0.0001,
-                                        tri.counts.method = 'default')
+                                        tri.counts.method = norm_method)
       
       # Add any unknown signatures
       sample_exp_CCC$weights$Signature.unknown <- sample_exp_CCC[["unknown"]]
@@ -110,10 +107,10 @@ expand <- function(exp_mat) {
   return(res_exp_mat)
 }
 
-allTreeExposures <- function(tree, feat_mat, sigs_filter) {
+allTreeExposures <- function(tree, feat_mat, sigs_filter, norm_method) {
   exp_list <- list()
   nrEdges  <- length(nodes(tree)) - 1
-  for (k in 0:nrEdges) { exp_list[[as.character(k)]] <- treeExposures(tree, feat_mat, k, sigs_filter) }
+  for (k in 0:nrEdges) { exp_list[[as.character(k)]] <- treeExposures(tree, feat_mat, k, sigs_filter, norm_method) }
   return(exp_list)
 }
 
