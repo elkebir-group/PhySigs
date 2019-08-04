@@ -1,5 +1,5 @@
 source("../src/phySigs.R")
-#load("tracerx.RData")
+load("tracerx_WES.RData")
 
 library(deconstructSigs)
 library(readxl)
@@ -96,9 +96,11 @@ for (patient in tree_mat$SampleID) {
   trees <- getTrees(patient, tree_mat)
   i <- 1
   for (t in trees) {
+    print(paste(patient, i))
     feat_mat <- getPatientFeatures(sigs.input, patient, t)
+    feat_mat <- normalizeFeatureMatrix(feat_mat, "exome")
     nrEdges  <- length(nodes(t)) - 1
-    exp_list[[patient]][[i]] <- allTreeExposures(t, feat_mat, sigs_all, "exome")
+    exp_list[[patient]][[i]] <- allTreeExposures(t, feat_mat, sigs_all)
     i <- i + 1
   }
 }
@@ -113,6 +115,7 @@ for (patient in tree_mat$SampleID) {
   i <- 1
   for (t in trees) {
     feat_mat <- getPatientFeatures(sigs.input, patient, t)
+    feat_mat <- normalizeFeatureMatrix(feat_mat, "exome")
     nrEdges  <- length(nodes(t)) - 1
     error_list[[patient]][[i]] <- list()
     BIC_list[[patient]][[i]] <- list()
@@ -127,7 +130,7 @@ for (patient in tree_mat$SampleID) {
 }
 
 # plot results
-pdf("tracerx_results.pdf", width=10, height=10)
+pdf("tracerx_results_WES.pdf", width=10, height=10)
 for (patient in tree_mat$SampleID) {
   trees <- getTrees(patient, tree_mat)
   pd <- subset(ind_mat, TRACERxID==patient) # patient data
@@ -169,7 +172,7 @@ for (patient in tree_mat$SampleID) {
 dev.off()
 
 # tracerx Best BIC
-sink("tracerx_opt.tsv")
+sink("tracerx_opt_WES.tsv")
 cat("patient", "\t", "n", "\t", "tree", "\t", "subtree", "\t", "mutation_count", "\t", "RSS", sep="")
 for (sig in sigs_all) {
   cat("\t", sig, sep="")
@@ -181,6 +184,7 @@ for (patient in tree_mat$SampleID) {
   
   for (t in trees) {
     feat_mat <- getPatientFeatures(sigs.input, patient, t)
+    feat_mat <- normalizeFeatureMatrix(feat_mat, "exome")
     nrEdges  <- length(nodes(t)) - 1
     
     min_bic <- Inf
@@ -223,13 +227,14 @@ for (patient in tree_mat$SampleID) {
 sink()
 
 # tracerx summary
-sink("tracerx.tsv")
+sink("tracerx_WES.tsv")
 cat("patient", "\t", "n", "\t", "tree", "\t", "k", "\t", "min_mut", "\t", "max_mut", "\t", "RSS", "\t", "BIC", "\n", sep="")
 for (patient in tree_mat$SampleID) {
   trees <- getTrees(patient, tree_mat)
   i <- 1
   for (t in trees) {
     feat_mat <- getPatientFeatures(sigs.input, patient, t)
+    feat_mat <- normalizeFeatureMatrix(feat_mat, "exome")
     nrEdges  <- length(nodes(t)) - 1
     for (k in 0:nrEdges) {
       exp_mat <- exp_list[[patient]][[i]][[as.character(k)]]
@@ -256,3 +261,12 @@ for (patient in tree_mat$SampleID) {
   }
 }
 sink()
+
+patient <- "CRUK0064"
+t <- getTrees("CRUK0064", tree_mat)[[1]]
+feat_mat <- getPatientFeatures(sigs_all, "CRUK0064", t)
+feat_mat <- normalizeFeatureMatrix(feat_mat, "exome")
+exp_mat <- exp_list[patient][[1]]
+plotTree(patient, "", t, feat_mat, exp_mat, 0)
+
+plotTree(patient, title, t, feat_mat, exp_mat, tree_idx=tree_idx)

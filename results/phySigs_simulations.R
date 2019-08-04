@@ -32,7 +32,7 @@ for (instance in instances) {
     tree <- parseTree(treeFilename, rownames(feat_mat2))
     
     nrEdges <- ncol(edgeMatrix(tree))
-    exp_list_sims[[instance]] <- allTreeExposures(tree, feat_mat2, row.names(signatures.cosmic))
+    exp_list_sims[[instance]] <- allTreeExposures(tree, feat_mat2, row.names(signatures.cosmic), "default")
   }
 }
 
@@ -98,7 +98,7 @@ sink()
 
 # Best BIC
 sink("sims_opt.tsv")
-cat("instance", "\t", "n", "\t", "\t", "subtree", "\t", "mutation_count", "\t", "RSS", sep="")
+cat("instance", "\t", "n", "\t", "subtree", "\t", "mutation_count", "\t", "RSS", sep="")
 for (sig in row.names(signatures.cosmic)) {
   cat("\t", sig, sep="")
 }
@@ -146,5 +146,3 @@ for (instance in names(exp_list_sims)) {
   }
 }
 sink()
-
-

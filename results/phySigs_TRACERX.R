@@ -98,7 +98,7 @@ for (patient in tree_mat$SampleID) {
   for (t in trees) {
     feat_mat <- getPatientFeatures(sigs.input, patient, t)
     nrEdges  <- length(nodes(t)) - 1
-    exp_list[[patient]][[i]] <- allTreeExposures(t, feat_mat, sigs_all)
+    exp_list[[patient]][[i]] <- allTreeExposures(t, feat_mat, sigs_all, "default")
     i <- i + 1
   }
 }

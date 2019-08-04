@@ -5,7 +5,16 @@ library(RColorBrewer)
 
 #sigs.input['CRUK0001:4',]+sigs.input['CRUK0001:5',]
 
-treeExposures <- function(tree, feat_mat, k, sigs_filter, norm_method) {
+normalizeFeatureMatrix <- function(feat_mat, norm_method) {
+  for (row in row.names(feat_mat)) {
+    feat_mat[row, ] = getTriContextFraction(mut.counts.ref = feat_mat[row,], 
+                                            trimer.counts.method = norm_method) * sum(feat_mat[row,])
+  }
+  
+  return(feat_mat)
+}
+
+treeExposures <- function(tree, feat_mat, k, sigs_filter) {
   V <- nodes(tree)
   E <- edgeMatrix(tree)
   E_list <- list()
@@ -34,10 +43,10 @@ treeExposures <- function(tree, feat_mat, k, sigs_filter, norm_method) {
     CC <- connComp(cpy_tree)
     error <- 0
     for (CCC in CC) {
-      feat_mat_CCC <- feat_mat[CCC[1],]
+      feat_mat_CCC <- sum(feat_mat[CCC[1],]) * feat_mat[CCC[1],]
       if (length(CCC) >= 2) {
         for (i in 2:length(CCC)) {
-          feat_mat_CCC <- feat_mat_CCC + feat_mat[CCC[i],]
+          feat_mat_CCC <- feat_mat_CCC + (sum(feat_mat[CCC[i],]) * feat_mat[CCC[i],])
         }  
       }
       row.names(feat_mat_CCC) <- paste(CCC,collapse=";")
@@ -50,7 +59,7 @@ treeExposures <- function(tree, feat_mat, k, sigs_filter, norm_method) {
                                         associated = sigs_filter,
                                         contexts.needed = TRUE,
                                         signature.cutoff = 0.0001,
-                                        tri.counts.method = norm_method)
+                                        tri.counts.method = "default")
       
       # Add any unknown signatures
       sample_exp_CCC$weights$Signature.unknown <- sample_exp_CCC[["unknown"]]
@@ -107,10 +116,10 @@ expand <- function(exp_mat) {
   return(res_exp_mat)
 }
 
-allTreeExposures <- function(tree, feat_mat, sigs_filter, norm_method) {
+allTreeExposures <- function(tree, feat_mat, sigs_filter) {
   exp_list <- list()
   nrEdges  <- length(nodes(tree)) - 1
-  for (k in 0:nrEdges) { exp_list[[as.character(k)]] <- treeExposures(tree, feat_mat, k, sigs_filter, norm_method) }
+  for (k in 0:nrEdges) { exp_list[[as.character(k)]] <- treeExposures(tree, feat_mat, k, sigs_filter) }
   return(exp_list)
 }
 
@@ -149,7 +158,7 @@ plotTree <- function(patient, title, tree, feat_mat, exp_mat, tree_idx=0) {
       eAttrs$color[[paste(source, "~",  target, sep="")]] <- "black"
     }
     else {
-      eAttrs$color[[paste(source, "~",  target, sep="")]] <- "red"
+      eAttrs$color[[paste(source, "~",  target, sep="")]] <- "black"
     }
   }
   
@@ -174,10 +183,10 @@ plotTree <- function(patient, title, tree, feat_mat, exp_mat, tree_idx=0) {
       
       # Make plots
       pieGlyph(x[which(x > 0)], xpos=getX(nc), ypos=getY(nc), radius=getNodeRW(node), col=pal)
-      text(getX(nc), getY(nc), paste(name(node), ": ", sum(feat_mat[name(node), ]), 
-                                     #"\\n",
-                                     #frob_mat_p[[paste0(patient, ":", name(node))]], 
-                                     sep=""), cex=.3, col="black", font=2)
+      # text(getX(nc), getY(nc), paste(name(node), #": ", sum(feat_mat[name(node), ]), 
+      #                                #"\\n",
+      #                                #frob_mat_p[[paste0(patient, ":", name(node))]], 
+      #                                sep=""), cex=.3, col="black", font=2)
     }
   }
   drawFunc <- apply(expanded_exp_mat, 2, makeNodeDrawFunction, fill=fill, patient=patient, feat_mat=feat_mat) #mut_counts=mut_counts, frob_mat_p=frob_mat_p)
@@ -194,7 +203,7 @@ plotTree <- function(patient, title, tree, feat_mat, exp_mat, tree_idx=0) {
   
   plot(tree, #subGList=subTList,
        drawNode=drawFunc, edgeAttrs = eAttrs, 
-       attrs=list(node=list(height=.75, width=.75, fontsize=2), 
+       attrs=list(node=list(height=2, width=2, fontsize=2), 
                   edge=list(fontsize=5)), mai=c(0.15, 0.15, 0.15, 1), 
        main=paste("ID:", title_id, "--", title, sep=' '))
   legend("topright", inset=c(-0.09,.03), title="Signatures", sig_ids, fill=fill, xpd = TRUE)
