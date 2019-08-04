@@ -1,0 +1,76 @@
+digraph T {
+	{
+		rank=same
+		35 [penwidth=3,colorscheme=set19,color=5,label="F3\nLOv"]
+		34 [penwidth=3,colorscheme=set19,color=4,label="F2\nLFTC"]
+		33 [penwidth=3,colorscheme=set19,color=6,label="F1\nOm"]
+		32 [penwidth=3,colorscheme=set19,color=7,label="D7\nRFTA"]
+		31 [penwidth=3,colorscheme=set19,color=8,label="D6\nROv"]
+		30 [penwidth=3,colorscheme=set19,color=5,label="D5\nLOv"]
+		29 [penwidth=3,colorscheme=set19,color=4,label="D4\nLFTC"]
+		28 [penwidth=3,colorscheme=set19,color=3,label="D3\nClnE"]
+		27 [penwidth=3,colorscheme=set19,color=2,label="D2\nCDSB"]
+		26 [penwidth=3,colorscheme=set19,color=6,label="D1\nOm"]
+		25 [penwidth=3,colorscheme=set19,color=7,label="C8\nRFTA"]
+		24 [penwidth=3,colorscheme=set19,color=8,label="C7\nROv"]
+		23 [penwidth=3,colorscheme=set19,color=5,label="C6\nLOv"]
+		22 [penwidth=3,colorscheme=set19,color=4,label="C5\nLFTC"]
+		21 [penwidth=3,colorscheme=set19,color=1,label="C4\nAdnx"]
+		20 [penwidth=3,colorscheme=set19,color=3,label="C3\nClnE"]
+		19 [penwidth=3,colorscheme=set19,color=2,label="C2\nCDSB"]
+		18 [penwidth=3,colorscheme=set19,color=6,label="C1\nOm"]
+		17 [penwidth=3,colorscheme=set19,color=3,label="B3\nClnE"]
+		16 [penwidth=3,colorscheme=set19,color=2,label="B2\nCDSB"]
+		15 [penwidth=3,colorscheme=set19,color=6,label="B1\nOm"]
+		14 [penwidth=3,colorscheme=set19,color=7,label="A8\nRFTA"]
+		13 [penwidth=3,colorscheme=set19,color=8,label="A7\nROv"]
+		12 [penwidth=3,colorscheme=set19,color=5,label="A6\nLOv"]
+		11 [penwidth=3,colorscheme=set19,color=4,label="A5\nLFTC"]
+		10 [penwidth=3,colorscheme=set19,color=1,label="A4\nAdnx"]
+		9 [penwidth=3,colorscheme=set19,color=3,label="A3\nClnE"]
+		8 [penwidth=3,colorscheme=set19,color=2,label="A2\nCDSB"]
+		7 [penwidth=3,colorscheme=set19,color=6,label="A1\nOm"]
+		6 [penwidth=3,colorscheme=set19,color=1,label="G1\nAdnx"]
+		4 [penwidth=3,colorscheme=set19,color=8,label="E1\nROv"]
+	}
+	5 [label="F"]
+	3 [label="D"]
+	2 [label="C"]
+	1 [label="B"]
+	0 [label="A"]
+	5 -> 35
+	5 -> 34
+	5 -> 33
+	5 -> 6
+	3 -> 32
+	3 -> 31
+	3 -> 30
+	3 -> 29
+	3 -> 28
+	3 -> 27
+	3 -> 26
+	3 -> 5
+	3 -> 4
+	2 -> 25
+	2 -> 24
+	2 -> 23
+	2 -> 22
+	2 -> 21
+	2 -> 20
+	2 -> 19
+	2 -> 18
+	2 -> 3
+	1 -> 17
+	1 -> 16
+	1 -> 15
+	0 -> 14
+	0 -> 13
+	0 -> 12
+	0 -> 11
+	0 -> 10
+	0 -> 9
+	0 -> 8
+	0 -> 7
+	0 -> 2
+	0 -> 1
+}
