@@ -32,9 +32,28 @@ for (instance in instances) {
     tree <- parseTree(treeFilename, rownames(feat_mat2))
     
     nrEdges <- ncol(edgeMatrix(tree))
-    exp_list_sims[[instance]] <- allTreeExposures(tree, feat_mat2, row.names(signatures.cosmic), "default")
+    exp_list_sims[[instance]] <- allTreeExposures(tree, feat_mat2, row.names(signatures.cosmic))
   }
 }
+
+# l <- foreach (i=1:length(instances), combine=c) %dopar% {
+#   instance <- instances[i]
+#   #if (!(instance %in% names(exp_list_sims))) {
+#     result <- list()
+#     print(instance)
+#     s <- unlist(strsplit(instance, "_"))
+#     treeFilename <- paste0(sim_path, s[[1]], "_", s[[2]], ".tree")
+#     
+#     feat_mat2 <- parseCountMatrix(paste0(sim_path, instance))
+#     tree <- parseTree(treeFilename, rownames(feat_mat2))
+#     
+#     nrEdges <- ncol(edgeMatrix(tree))
+#     list(c(instance, list(allTreeExposures(tree, feat_mat2, row.names(signatures.cosmic)))))
+#   #}
+# }
+
+
+#for (i in 61:180) { instance <- l[[i]][[1]][[1]][[1]]; exp_list_sims[[instance]] <- l[[i]][[1]][[2]]}
 
 # infer errors for all trees
 error_list_sims <- list()
