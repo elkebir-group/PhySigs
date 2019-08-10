@@ -162,4 +162,4 @@ plotTree(tumorID, title, T, P_Norm, E_list[[k]], tree_idx=1)
 Running all of these steps together should result in the following plot.
 
 
-![Example Tree Exposure Plot](example_results.pdf)
+![Example Tree Exposure Plot](example_results.png)
