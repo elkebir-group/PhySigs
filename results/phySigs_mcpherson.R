@@ -72,8 +72,8 @@ getOVSigs <- function() {
   # Create vector of signatures for OV cancer
   # See https://cancer.sanger.ac.uk/signatures_v2/matrix.png
   sigs_ovary <- c("Signature.1", "Signature.3", "Signature.5")
-  #sigs_additional <- c("Signature.2", "Signature.13")
-  sigs_additional <- c("Signature.2", "Signature.5", "Signature.6", "Signature.8", "Signature.10", "Signature.13", "Signature.17", "Signature.18", "Signature.20", "Signature.26", "Signature.30")
+  sigs_additional <- c("Signature.2", "Signature.13")
+  #sigs_additional <- c("Signature.2", "Signature.6", "Signature.8", "Signature.10", "Signature.13", "Signature.17", "Signature.18", "Signature.20", "Signature.26", "Signature.30")
   sigs_all <- union(sigs_ovary, sigs_additional)
   return(sigs_all)
 }
@@ -108,8 +108,9 @@ for (patient in patients) {
   exp_list[[patient]] <- list()
   t <- getTrees(patient, tree_mat)
   feat_mat <- getPatientFeatures(sigs.input, patient, t)
+  feat_mat <- normalizeFeatureMatrix(feat_mat, "genome")
   nrEdges  <- length(nodes(t)) - 1
-  exp_list[[patient]][[1]] <- allTreeExposures(t, feat_mat, sigs_all, "default")
+  exp_list[[patient]][[1]] <- allTreeExposures(t, feat_mat, sigs_all)
 }
 
 # infer errors for all trees
@@ -121,6 +122,7 @@ for (patient in patients) {
   BIC_list[[patient]] <- list()
   t <- getTrees(patient, tree_mat)
   feat_mat <- getPatientFeatures(sigs.input, patient, t)
+  feat_mat <- normalizeFeatureMatrix(feat_mat, "genome")
   nrEdges  <- length(nodes(t)) - 1
   error_list[[patient]][[i]] <- list()
   BIC_list[[patient]][[i]] <- list()
@@ -140,6 +142,7 @@ for (patient in patients) {
 
   i <- 1
   feat_mat <- getPatientFeatures(sigs.input, patient, t)
+  feat_mat <- normalizeFeatureMatrix(feat_mat, "genome")
   nrEdges  <- length(nodes(t)) - 1
   x <- 0:nrEdges
   y <- as.numeric(error_list[[patient]][[i]])
@@ -182,6 +185,7 @@ for (patient in patients) {
   i <- 1
 
   feat_mat <- getPatientFeatures(sigs.input, patient, t)
+  feat_mat <- normalizeFeatureMatrix(feat_mat, "genome")
   nrEdges  <- length(nodes(t)) - 1
     
   min_bic <- Inf
@@ -228,6 +232,7 @@ for (patient in patients) {
   i <- 1
     
   feat_mat <- getPatientFeatures(sigs.input, patient, t)
+  feat_mat <- normalizeFeatureMatrix(feat_mat, "genome")
   nrEdges  <- length(nodes(t)) - 1
   for (k in 0:nrEdges) {
     exp_mat <- exp_list[[patient]][[i]][[as.character(k)]]
