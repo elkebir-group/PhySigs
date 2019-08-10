@@ -1,7 +1,5 @@
 library(deconstructSigs)
 library(graph)
-library(Rgraphviz)
-library(RColorBrewer)
 
 #sigs.input['CRUK0001:4',]+sigs.input['CRUK0001:5',]
 
@@ -124,6 +122,9 @@ allTreeExposures <- function(tree, feat_mat, sigs_filter) {
 }
 
 plotTree <- function(patient, title, tree, feat_mat, exp_mat, tree_idx=0) {
+  library(Rgraphviz)
+  library(RColorBrewer)
+  
   expanded_exp_mat <- expand(exp_mat)
   expanded_exp_mat <- expanded_exp_mat[, nodes(tree)]
   
