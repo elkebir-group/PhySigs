@@ -1,10 +1,10 @@
 # PhySigs: Phylogenetic Inference of Mutational Signature Dynamics
 
-The input to PhySigs is a phylogeny $T$ with nodes representing clones in a patient tumor, signature matrix $S$ containing the set of mutational signatures to use in the analysis, and a feature matrix $P$ for the set of mutations introduced in each clone. In particular, the mutational categories in the feature matrix should correspond to the mutational categories used in the signature matrix.  Currently, PhySigs supports the standard 96 mutational categories for SNVs for [COSMIC V2](https://cancer.sanger.ac.uk/cosmic/signatures_v2) signatures.   
+The input to PhySigs is a phylogeny with nodes representing clones in a patient tumor, a signature matrix containing the set of mutational signatures to use in the analysis, and a feature matrix for the set of mutations introduced in each clone. In particular, the mutational categories in the feature matrix should correspond to the mutational categories used in the signature matrix.  Currently, PhySigs supports the standard 96 mutational categories for SNVs for [COSMIC V2](https://cancer.sanger.ac.uk/cosmic/signatures_v2) signatures.   
 
-<img src="overview.pdf" alt="overview" width=1500\>
+![Overview of PhySigs problem](overview.png)
 
-PhySigs automatically computes the count matrix $C$, as it is simply a diagonal matrix containing the sum of columns in $P$. PhySigs then solves the Tree-constrained Exposure (TE) problem, identifying for each value of $k \in \{1,...,n\}$, a relative exposure matrix $D$ composed of $k$ identical columns corresponding to clusters of clones with identical exposures (denoted by blue and yellow). Edges between these clusters in T are inter- preted to be where exposure shifts occurred (denoted by a lightning bolt). PhySigs uses the Bayesian Information Criterion to select the number $k^*$ of clusters that best explain the data (here $k^* = 2$).
+PhySigs automatically computes the count matrix, as it is simply a diagonal matrix containing the sum of columns in the feature matrix. PhySigs then solves the Tree-constrained Exposure (TE) problem for all possible clusterings of the clones that correspond to a partition of the phylogeny. The output of the TE problem is a relative exposure matrix composed of groups of identical columns corresponding to clusters of clones with identical exposures (denoted by blue and yellow). Edges between these clusters in the phylogeny are interpreted to be where exposure shifts occurred (denoted by a lightning bolt). PhySigs uses the Bayesian Information Criterion to select the number of clusters that best explain the data (2 clusters depicted).
 
 ## Contents
 
@@ -54,16 +54,16 @@ Here we walk through the pipeline of how to use PhySigs. The code provided in th
 
 ### I/O formats
 
-PhySigs takes as input a phylogeny $T$ represented as a graph::graphNEL object, with nodes labeled by each clone. It also takes as input a feature matrix $P$ whose row labels correspond to the nodes in $T$ and whose column labels correspond to mutational categories (e.g. "A[C>A]A"). The final input is a character vector $S$ containing the names for the subset of COSMIC V2 signatures to include.
+PhySigs takes as input a phylogeny represented as a graph::graphNEL object, with nodes labeled by each clone. It also takes as input a feature matrix whose row labels correspond to the nodes in the phylogeny and whose column labels correspond to mutational categories (e.g. "A[C>A]A"). The final input is a character vector containing the names for the subset of COSMIC V2 signatures to include.
 
-An example of how to set $S$.
+An example of how to set the signature vector.
 
 ```R
 # Input subset of COSMIC signatures
 S <- c("Signature.1", "Signature.3")
 ```
 
-An example of how to construct $T$ from a csv file with rows containing edges of the tumor phylogeny. 
+An example of how to construct the phylogeny from a csv file with rows containing edges of the tumor phylogeny. 
 
 ```R
 # Input CSV file 
@@ -85,7 +85,7 @@ for (i in 1:nrow(tree_matrix)){
 }
 ```
 
-An example of how to construct $P$ from a CSV file of SNVs.
+An example of how to construct the feature matrix from a CSV file of SNVs.
 
 ```R
 # Input CSV file
@@ -105,7 +105,7 @@ P <- mut.to.sigs.input(mut.ref = input_mat,
 
 ### normalizeFeatureMatrix
 
-This function takes as input feature matrix $P$ and normalizes it. The backend of this function relies on getTriContextFraction in deconstuctSigs. Possible normalization options include: "default", "genome", and "exome". Please see deconstructSigs [documentation](https://github.com/raerose01/deconstructSigs) for more information on the normalization procedure. 
+This function takes as input feature matrix and adjusts the counts based on the trinucleotide context fraction. The backend of this function relies on getTriContextFraction in deconstuctSigs. Possible normalization options include: "default", "genome", and "exome". Please see deconstructSigs [documentation](https://github.com/raerose01/deconstructSigs) for more information on the normalization procedure. 
 
 ```R
 # Normalize feature matrix
@@ -116,7 +116,7 @@ P_Norm <- normalizeFeatureMatrix(P, "genome")
 
 ### allTreeExposures
 
-This function takes as input $T$, $S$, and a normalized $P$. It returns a list of exposure matrices whose entries correspond to the best partition of $T$ for each value of $k \in \{1, ..., n\}$. Each exposure matrix has a row for each signature in $S$ and a column for each cluster of clones induced by the partition of $T$. 
+This function takes as input a phylogeny, the signature vector, and the normalized feature matrix. It returns a list of exposure matrices whose entries correspond to the best partition of the phylogeny for each possible number of clusters. Each exposure matrix has a row for each requested signature and a column for each cluster of clones induced by the partition of the phylogeny. 
 
 ```R
 # Recover lowest error exposure matrix for every possible number of clusters. 
@@ -127,7 +127,7 @@ E_list <- allTreeExposures(T, P_Norm, S)
 
 ### getError
 
-Given a normalized feature matrix $P$, estimated exposures $E$, and signature matrix $S$, this function returns the Frobineous norm between the reconstructed feature matrix $SE$ and the normalized feature matrix $P$.
+Given a normalized feature matrix, estimated exposures, and signature matrix, this function returns the Frobineous norm between the reconstructed feature matrix and the normalized feature matrix.
 
 ```R
 # Get error for exposure matrix from best set of k clusters.
@@ -139,7 +139,7 @@ error <- getError(P_Norm, E_list[[k]], S)
 
 ### getBIC
 
-Given a normalized feature matrix $P$ , estimated exposures $E$, and signature matrix $S$, this function returns the Bayesian information criterion based on the error between the reconstructed feature matrix $SE$ and  the normalized feature matrix $P$.
+Given a normalized feature matrix, estimated exposures, and signature matrix, this function returns the Bayesian information criterion based on the error between the reconstructed feature matrix and the normalized feature matrix.
 
 ```R
 # Get BIC for exposure matrix from best set of k clusters. 
@@ -150,7 +150,7 @@ bic <- getBIC(P_Norm, E_list[[k]], S)
 
 ### plotTree
 
-The inputs to this function are tumor phylogeny $T$, normalized feature matrix $P$, and an exposure matrix $E$. To annotate the plot, the function also requires a tumorID (useful when analyzing more than 1 tumor), a plot title, and optinally a tree index (useful when tumor has more than 1 possible tree).
+The inputs to this function are the tumor phylogeny, normalized feature matrix, and exposure matrix. To annotate the plot, the function also requires a tumorID (useful when analyzing more than 1 tumor), a plot title, and optionally a tree index (useful when tumor has more than 1 possible tree).
 
 ```R
 # Get tree figure with pie chart nodes showing exposures.
@@ -162,5 +162,4 @@ plotTree(tumorID, title, T, P_Norm, E_list[[k]], tree_idx=1)
 Running all of these steps together should result in the following plot.
 
 
-
-<img src="example_results.pdf" alt="example" width=600\>
+![Example Tree Exposure Plot](example_results.pdf)
