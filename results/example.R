@@ -1,6 +1,5 @@
 library(deconstructSigs)
 library(graph)
-setwd("/Users/sarahchristensen/Documents/UIUC/Bioinformatics/Signatures/phySigs/results/")
 source("../src/phySigs.R")
 
 # Set signatures of interest
