@@ -39,7 +39,7 @@ PhySigs is written in R. The implementation was develped and tested in R Version
 PhySigs has the following dependencies to perform signature exposure inference:
 
 * [deconstructSigs](https://cran.r-project.org/web/packages/deconstructSigs/index.html) (>= 1.8.0)
-* [graph](http://www.bioconductor.org/packages/release/bioc/html/graph.html) (>= 3.9)
+* [graph](http://www.bioconductor.org/packages/release/bioc/html/graph.html) (>= 1.63)
 
 PhySigs has the following optional dependencies, which may be used to visualize the results:
 
