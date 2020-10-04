@@ -6,6 +6,8 @@ The input to PhySigs is a phylogeny with nodes representing clones in a patient 
 
 PhySigs automatically computes the count matrix, as it is simply a diagonal matrix containing the sum of columns in the feature matrix. PhySigs then solves the Tree-constrained Exposure (TE) problem for all possible clusterings of the clones that correspond to a partition of the phylogeny. The output of the TE problem is a relative exposure matrix composed of groups of identical columns corresponding to clusters of clones with identical exposures (denoted by blue and yellow). Edges between these clusters in the phylogeny are interpreted to be where exposure shifts occurred (denoted by a lightning bolt). PhySigs uses the Bayesian Information Criterion to select the number of clusters that best explain the data (2 clusters depicted).
 
+This software corresponds to the paper "PhySigs: Phylogenetic Inference of Mutational Signature Dynamics" presented at the 2020 Pacific Symposium on Biocomputing and linked [here](https://psb.stanford.edu/psb-online/proceedings/psb20/Christensen.pdf). Please cite this paper when using the PhySigs software.   
+
 ## Contents
 
   1. [Getting started](#start)
